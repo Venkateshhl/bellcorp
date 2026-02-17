@@ -263,3 +263,24 @@ select option { background: #141c2e; }
 /* Font helpers */
 .syne { font-family: 'Syne', sans-serif; }
 .mono { font-family: 'DM Mono', monospace; }
+
+/* Install CTA */
+.install-wrap {
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.install-btn { box-shadow: 0 8px 20px rgba(0,0,0,0.45); }
+.install-hint {
+  background: rgba(255,255,255,0.03);
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+}

@@ -8,6 +8,7 @@ import Sidebar from './components/Sidebar'
 import MobileNav from './components/MobileNav'
 import TransactionModal from './components/TransactionModal'
 import { useTransactions } from './context/TransactionContext'
+import GetAppButton from './components/GetAppButton'
 
 /* ── Protected App Shell ── */
 function AppShell() {
@@ -51,6 +52,7 @@ function AppShell() {
           onClose={() => setShowModal(false)}
         />
       )}
+      <GetAppButton />
     </>
   )
 }
