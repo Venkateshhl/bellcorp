@@ -37,10 +37,17 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
+          set -e
+          mkdir -p android
           if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "No KEYSTORE_BASE64 secret found; skipping keystore creation"; exit 1
+            echo "ERROR: KEYSTORE_BASE64 is empty. Please add the base64-encoded keystore as a secret." >&2
+            exit 1
           fi
-          echo "$KEYSTORE_BASE64" | base64 --decode > android/bellcorp.keystore
+          printf '%s' "$KEYSTORE_BASE64" | tr -d '\r' | base64 --decode > android/bellcorp.keystore || {
+            echo "ERROR: Failed to decode KEYSTORE_BASE64 (invalid base64)." >&2
+            exit 1
+          }
+          echo "Keystore written to android/bellcorp.keystore (size: $(stat -c%s android/bellcorp.keystore) bytes)"
 
       - name: Build AAB (bundleRelease)
         env:
