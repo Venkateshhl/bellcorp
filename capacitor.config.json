@@ -1,0 +1,12 @@
+{
+  "appId": "com.bellcorp.app",
+  "appName": "Bellcorp",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "minWebViewVersion": 90,
+    "allowMixedContent": false
+  }
+}
