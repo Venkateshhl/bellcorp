@@ -1,0 +1,4 @@
+.vercelnode_modules/
+dist/
+.env
+.env.local
