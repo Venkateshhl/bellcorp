@@ -1,0 +1,67 @@
+name: Android Build (AAB)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-aab:
+    name: Build Android AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-levels: '33'
+          build-tools: '33.0.2'
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew || true
+
+      - name: Decode keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No KEYSTORE_BASE64 secret found; skipping keystore creation"; exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/bellcorp.keystore
+
+      - name: Build AAB (bundleRelease)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease -Pandroid.injected.signing.store.file=android/bellcorp.keystore \
+            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bellcorp-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Create GitHub Release and upload AAB (optional)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: android/app/build/outputs/bundle/release/app-release.aab
+          token: ${{ secrets.GITHUB_TOKEN }}
